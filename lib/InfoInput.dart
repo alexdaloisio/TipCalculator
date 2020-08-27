@@ -19,11 +19,10 @@ class InfoInput extends StatefulWidget {
   _InfoInputState createState() => _InfoInputState();
 }
 
+// Uses the "hint" to make the change in the correct field in the meal object
 class _InfoInputState extends State<InfoInput> {
   @override
   Widget build(BuildContext context) {
-    //TODO:Maybe work on having the $ appear in the textfield and not the text
-    //this would look nicer because it would only appear when typing in a value
     String label = widget._hint + ': \$';
     String prefix = '\$ ';
     String suffix = '';
@@ -68,9 +67,6 @@ class _InfoInputState extends State<InfoInput> {
                         widget._hint, double.parse(widget._controller.text));
                   }
                   widget._meal.updateTotal();
-
-                  // Updates finalPrice for the Diners
-                  widget._meal.updateTotalPrice();
 
                   // make sure that parent is rebuilt
                   widget._updateParent.call();

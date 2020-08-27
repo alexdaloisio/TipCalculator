@@ -5,12 +5,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:share/share.dart';
 import 'Diner.dart';
 import 'Meal.dart';
-import 'RowInfo.dart';
 import 'popUpInput.dart';
 import 'main.dart';
 import 'ResultScreen.dart';
 
-//TODO add recurring item
+// The 2nd input screen
 class SecondInputScreen extends StatefulWidget {
   final Meal _meal;
 
@@ -22,7 +21,7 @@ class SecondInputScreen extends StatefulWidget {
 class _SecondInputScreenState extends State<SecondInputScreen> {
   @override
   Widget build(BuildContext context) {
-    widget._meal.updateFunction(Refresh);
+    widget._meal.updateFunction(refresh);
     return Scaffold(
       appBar: AppBar(
         title: Text('Next, add the diner\'s info'),
@@ -49,6 +48,8 @@ class _SecondInputScreenState extends State<SecondInputScreen> {
                     child: Text('Calculate!'),
                     onPressed: () {
                       if (differenceMsg().length == 0) {
+                        // Checks to make sure diners' prices add up to full total of meal
+                        widget._meal.checkTotalPrices(widget._meal.sumOfTotalPrices());
                         Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -92,9 +93,10 @@ class _SecondInputScreenState extends State<SecondInputScreen> {
     );
   }
 
+  // Content for the alert dialog that will pop up when the subtotal of a meal
+  // does not match the sum of the diners' orders
   String differenceMsg() {
-    if ((widget._meal.sumOfItems() - widget._meal.subTotal).abs() < 0.00001 ||
-        widget._meal.subTotal == 0) {
+    if ((widget._meal.sumOfItems() - widget._meal.subTotal).abs() < 0.00001) {
       return "";
     } else {
       double dif = (widget._meal.sumOfItems() - widget._meal.subTotal).abs();
@@ -112,12 +114,14 @@ class _SecondInputScreenState extends State<SecondInputScreen> {
     }
   }
 
+  // adds an addButton widget to the list of diner widgets
   List<Widget> dinersWithButton() {
     List<Widget> ans = widget._meal.buildAllDinerInputs();
     ans.add(addButton());
     return ans;
   }
 
+  // upon press triggers an alert dialog to allow the adding of a diner's info
   Widget addButton() {
     return Row(
       children: <Widget>[
@@ -142,6 +146,18 @@ class _SecondInputScreenState extends State<SecondInputScreen> {
                       actions: <Widget>[
                         FlatButton(
                           child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                              color: Colors.blue,
+                            ),
+                          ),
+                          onPressed: (){
+                            Navigator.of(context).pop();
+                            widget._meal.diners.removeLast();
+                          },
+                        ),
+                        FlatButton(
+                          child: Text(
                             "Ok",
                             style: TextStyle(
                               color: Colors.blue,
@@ -156,7 +172,7 @@ class _SecondInputScreenState extends State<SecondInputScreen> {
                               Navigator.of(context).pop();
                             });
                           },
-                        )
+                        ),
                       ],
                     );
                   });
@@ -171,7 +187,9 @@ class _SecondInputScreenState extends State<SecondInputScreen> {
     );
   }
 
-  void Refresh() {
+  // Allows for the redrawing of this page upon modification of child elements,
+  // like deleting
+  void refresh() {
     setState(() {});
   }
 }

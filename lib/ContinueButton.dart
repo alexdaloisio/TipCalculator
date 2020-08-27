@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'Meal.dart';
-import 'main.dart';
 
+// Button to progress to the next page
 class ContinueButton extends StatelessWidget {
   final Widget destination;
   final String text;

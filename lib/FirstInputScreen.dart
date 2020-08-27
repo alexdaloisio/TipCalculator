@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:share/share.dart';
 import 'Diner.dart';
 import 'Meal.dart';
-import 'RowInfo.dart';
+
 import 'popUpInput.dart';
 import 'main.dart';
 import 'SecondInputScreen.dart';
@@ -19,6 +19,7 @@ void main() {
   );
 }
 
+// First input screen that allows for the input of subtotal, tax and tip rate
 class FirstInputScreen extends StatefulWidget {
   @override
   _FirstInputScreenState createState() => _FirstInputScreenState();
@@ -64,6 +65,7 @@ class _FirstInputScreenState extends State<FirstInputScreen> {
     );
   }
 
+  // Redraws the first input screen
   void refresh() {
     setState(() {});
   }

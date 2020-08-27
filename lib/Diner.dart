@@ -1,14 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:share/share.dart';
 import 'Meal.dart';
 import "ItemInput.dart";
 import 'popUpInput.dart';
 
+// Options for the pop up menu
 enum Options { Edit, Delete, Share }
 
+// Class that creates the Diner rows on the 2nd page, (used for inputting diner
+// values and viewing them before continuing to the final page
 class DinerRowInput extends StatefulWidget {
   final Diner _diner;
   final Meal _meal;
@@ -20,6 +22,7 @@ class DinerRowInput extends StatefulWidget {
 }
 
 class _DinerRowInputState extends State<DinerRowInput> {
+  // Creates an alert dialog that allows the editing of previous diner inputs
   void edit() {
     showDialog(
         context: context,
@@ -29,6 +32,17 @@ class _DinerRowInputState extends State<DinerRowInput> {
             title: Text("Add Diner\'s name and Items"),
             content: PopUpInput(widget._diner),
             actions: <Widget>[
+              FlatButton(
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: Colors.blue,
+                  ),
+                ),
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+              ),
               FlatButton(
                 child: Text(
                   "Ok",
@@ -50,13 +64,13 @@ class _DinerRowInputState extends State<DinerRowInput> {
         });
   }
 
+  // Deletes the selected diner
   void delete() {
-    //widget._deleteDiner.call(widget._diner);
-
     widget._meal.diners.remove(widget._diner);
     widget._meal.updateParent.call();
   }
 
+  // Builds the diner row input itself (on the 2nd page)
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -107,6 +121,7 @@ class _DinerRowInputState extends State<DinerRowInput> {
   }
 }
 
+// Builds the diner row results on the third page
 class DinerRowResult extends StatefulWidget {
   final Diner _diner;
 
@@ -134,136 +149,14 @@ class _DinerRowResultState extends State<DinerRowResult> {
               ),
             ),
           ),
-          IconButton(
-            icon: Icon(Icons.share),
-            onPressed: () {
-              share();
-            },
-          )
-        ],
-      ),
-    );
-  }
-
-  void share() {
-    double price = widget._diner.totalPrice;
-    if (widget._diner.name.length == 0) {
-      Share.share('You owe \$$price');
-    } else {
-      String name = widget._diner.name;
-      Share.share(name + ', you owe \$$price');
-    }
-  }
-}
-
-class DinerRow extends StatefulWidget {
-  final Diner _diner;
-  final Meal _meal;
-  final Function _updateParent;
-  final Function _deleteDiner;
-
-  DinerRow(this._diner, this._meal, this._updateParent, this._deleteDiner);
-  //TODO: Need to adjust sizes of fields, on phone does not appear correctly
-
-  @override
-  _DinerRowState createState() => _DinerRowState();
-}
-
-//TODO I really  need to make the input fields nicer
-class _DinerRowState extends State<DinerRow> {
-  void edit() {
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Add Diner\'s name and Items"),
-            content: PopUpInput(widget._diner),
-            actions: <Widget>[
-              FlatButton(
-                child: Text(
-                  "Ok",
-                  style: TextStyle(
-                    color: Colors.blue,
-                  ),
-                ),
-                onPressed: () {
-                  setState(() {
-                    widget._diner.updateSum();
-                    widget._meal.updateTotalPrice();
-                    widget._meal.updateTotal();
-                    widget._updateParent.call();
-                    Navigator.of(context).pop();
-                  });
-                },
-              )
-            ],
-          );
-        });
-  }
-
-  void delete() {
-    //widget._deleteDiner.call(widget._diner);
-    widget._meal.diners.remove(widget._diner);
-    widget._updateParent.call();
-  }
-
-  void share() {
-    double price = widget._diner.totalPrice;
-    if (widget._diner.name.length == 0) {
-      Share.share('You owe \$$price');
-    } else {
-      String name = widget._diner.name;
-      Share.share(name + ', you owe \$$price');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Row(
-        children: <Widget>[
-          Text(widget._diner.name),
-          Text('  Sum of Order:  ' +
-              '\$' +
-              widget._diner.sumOfItems.toStringAsFixed(2)),
-          Text('  Total Owed:  ' +
-              '\$' +
-              widget._diner.totalPrice.toStringAsFixed(2)),
           Spacer(),
           PopupMenuButton(
             onSelected: (Options choice) {
-              if (choice == Options.Edit) {
-                edit();
-              } else if (choice == Options.Delete) {
-                delete();
-              } else if (choice == Options.Share) {
-                share();
-              }
+            share();
             },
             icon: Icon(Icons.more_vert),
             itemBuilder: (BuildContext context) {
               return <PopupMenuEntry<Options>>[
-                PopupMenuItem(
-                  value: Options.Edit,
-                  child: Row(
-                    children: <Widget>[
-                      Icon(Icons.edit),
-                      VerticalDivider(),
-                      Text('Edit')
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: Options.Delete,
-                  child: Row(
-                    children: <Widget>[
-                      Icon(Icons.delete),
-                      VerticalDivider(),
-                      Text('Delete')
-                    ],
-                  ),
-                ),
                 PopupMenuItem(
                   value: Options.Share,
                   child: Row(
@@ -281,6 +174,17 @@ class _DinerRowState extends State<DinerRow> {
       ),
     );
   }
+
+  // Allows for the sharing of how much an individual diner owes
+  void share() {
+    double price = widget._diner.totalPrice;
+    if (widget._diner.name.length == 0) {
+      Share.share('You owe \$$price');
+    } else {
+      String name = widget._diner.name;
+      Share.share(name + ', you owe \$$price');
+    }
+  }
 }
 
 // Class for one Diner (Horizontal row)
@@ -291,7 +195,7 @@ class Diner {
   double totalPrice;
   TextEditingController nameController = TextEditingController();
 
-  List<ItemInput> listOfItems = <ItemInput>[ItemInput(Item())];
+  List<ItemInput> listOfItems = <ItemInput>[];
 
   Diner(String name, String items, double sumOfItems, double totalPrice) {
     this.name = name;
@@ -313,9 +217,13 @@ class Diner {
     this.listOfItems.add(ItemInput(Item()));
   }
 
+  void addItemThatExists(Item item) {
+    this.listOfItems.add(ItemInput(item));
+  }
+
   //Removes an Item from the list of items
   void removeItem() {
-    if (this.listOfItems.length > 1) {
+    if (this.listOfItems.length > 0) {
       this.listOfItems.removeLast();
     }
   }

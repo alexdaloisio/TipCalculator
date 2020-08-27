@@ -1,9 +1,8 @@
-import 'Diner.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+// Used to allow the inputting of diner items
 class ItemInput extends StatefulWidget {
   final Item _item;
 
@@ -37,6 +36,15 @@ class _ItemInputState extends State<ItemInput> {
   }
 }
 
+// This class holds the price of one item in its controller
 class Item {
   TextEditingController controller = TextEditingController();
+
+  Item();
+
+  Item.extra(TextEditingController controller) {
+    this.controller = controller;
+  }
+
+
 }

@@ -6,21 +6,14 @@ import 'package:tipcalculator/Diner.dart';
 import 'dart:math';
 
 class Meal {
+
   List<Diner> diners;
   double subTotal;
   double tipRate;
   double tax;
   double fullTotal;
 
-  //TODO total that is the sum of the totalPrice of the diners
-  double trueTotal;
-
   Function updateParent;
-  Function deleteEntry;
-
-  bool isRounded = false; //Are we going to round the results to nearest $
-
-  //TODO:Needs to have a list of final prices
 
   TextEditingController subTotalController = TextEditingController();
   TextEditingController tipRateController = TextEditingController();
@@ -29,7 +22,7 @@ class Meal {
   Meal(List<Diner> diners, double subTotal, double tipRate, double tax,
       double fullTotal) {
     this.diners = diners;
-    this.subTotal = subTotal;
+    this.subTotal = 0;
     this.tipRate = tipRate;
     this.tax = tax;
     this.fullTotal = fullTotal;
@@ -44,19 +37,20 @@ class Meal {
     this.fullTotal = 0;
   }
 
+  // Allows us to change the highest parent function of the current page
+  // So we can pass a setState function and have the highest parent
+  // re render when a child is changed
   void updateFunction(Function func) {
     this.updateParent = func;
   }
 
-  void updateDeleteFunction(Function func) {
-    this.deleteEntry = func;
-  }
 
   // adds a default diner to a list of diners
   void addDiner() {
     diners.add(Diner.defaultDiner());
   }
 
+  // Builds the list of Diner results for the final page
   List<Widget> buildAllDinerResults() {
     List<Widget> result = <Widget>[];
 
@@ -67,6 +61,7 @@ class Meal {
     return result;
   }
 
+  // builds the list of diner inputs for the second page
   List<Widget> buildAllDinerInputs() {
     List<Widget> result = <Widget>[];
 
@@ -77,16 +72,6 @@ class Meal {
     return result;
   }
 
-  // returns a list of all Diners for this current meal
-  List<Widget> buildAllDiners() {
-    List<Widget> result = <Widget>[];
-
-    for (Diner din in diners) {
-      result.add(DinerRow(din, this, updateParent, deleteEntry));
-    }
-
-    return result;
-  }
 
   // updates one of the tip tax or subtotal based on input
   void updateOneOfThree(String text, double newValue) {
@@ -106,21 +91,16 @@ class Meal {
 
   // Update TotalPrice for the Diners un-rounded
   void updateTotalPrice() {
-    //TODO think more about these conditions
-    // subtotal and tax are fulled in, all Diners have an order, and subtotal
-    // and dinners sumOfitems are equal
-    if (true) {
-      //this.subTotal > 0) {
-
-      // This computes the price for unrounded totals
-      if (!isRounded) {
         double totalPrice = this.sumOfItems();
 
         if (totalPrice == 0) {
           for (int i = 0; i < diners.length; i++) {
             diners[i].totalPrice = 0;
           }
-        } else {
+
+        }
+
+        else {
           // How much the Diners pay according to these calculations
           // want to avoid the chance the rounding requires them to pay less or more
           double paidSum = 0;
@@ -134,22 +114,11 @@ class Meal {
             this.diners[i].totalPrice = res;
             paidSum += res;
           }
-          //TODO: make sure that checkTotalPrices is only called when subtotal is there,
-          //TODO can do it below or for the entire function
-          this.checkTotalPrices(paidSum);
-        }
+
       }
-      // Live rounding (while user inputs) seems unwise, hard to decide on changing tip or adding cents to a total price.
-      else {
-        this.updateRoundedPrices();
-      }
-    }
   }
 
-  //TODO: have it so rounding prices will change the tip to the correct price to make them even
-  //TODO: have alert come up to show user the tip change to get everyone to an even dollar, can select no, in that case the user decides if the 50 cents should be added
-  //TODO: or if tip should be rounded up
-  //THis will return the difference in how much is being paid with rounded price and how much needs to be paid
+  //This will return the difference in how much is being paid with rounded price and how much needs to be paid
   double updateRoundedPrices() {
     double totalPrice = this.sumOfItems();
     double paidSum = 0;
@@ -168,23 +137,16 @@ class Meal {
         paidSum += roundDouble(res, 0);
       }
     }
-    return roundDouble(this.sumOfItems() - this.subTotal, 2);
+    return roundDouble(this.sumOfTotalPrices() - this.fullTotal, 2);
   }
 
-  void fixRoundedTotals(double dif) {
-    if ((this.sumOfItems() - this.subTotal).abs() < 0.00001) {
-      //fix rounding
-    }
-    //else do nothing
-  }
-
-  // checks for rounding errors
+  // checks for rounding errors in calculating the unrounded result,
+  // because we truncate to 2 decimal points we prevent situations such as
+  // 1 / 3 = 0.33, we add the extra cent so the totals are correct
   void checkTotalPrices(double paidSum) {
-    //TODO check these, they seem kind of ehhh
 
-    //We only want to run these checks if the user entered suffi, I.e the user entered the correct amount of information
-    if ((this.sumOfItems() - this.subTotal).abs() < 0.00001) {
-      // paidSum exceeds actual amount
+
+
       if (paidSum - this.fullTotal >= 0.009) {
         double dif = roundDouble(paidSum - this.fullTotal, 2);
         print('top');
@@ -203,20 +165,15 @@ class Meal {
       else if (this.fullTotal - paidSum >= 0.009) {
         double dif = roundDouble(this.fullTotal - paidSum, 2);
         int i = 0;
-        print('bot');
         while (dif > 0) {
           if (i >= diners.length) {
             i = 0;
-            print('entered loop');
           }
-          print(i);
-          print(diners.length);
           diners[i].totalPrice += 0.01;
           dif -= 0.01;
           i++;
         }
       }
-    }
   }
 
   //checks to make sure that all diners have a sum of items field that is not 0
@@ -239,7 +196,7 @@ class Meal {
     return sum;
   }
 
-  //Returns sumofTotalPrices of diners
+  //Returns sum of TotalPrices of diners
   double sumOfTotalPrices() {
     double sum = 0;
 
