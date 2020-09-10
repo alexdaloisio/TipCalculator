@@ -1,7 +1,7 @@
 # tipcalculator (name not final) 
 
 ## Installation
-tipcalculator is not yet avabile on mobile app stores. It can be installed temporarly as a debug app through IDEs such as Andriod Studio.
+tipcalculator is not yet available on mobile app stores. It can be installed temporarily as a debug app through IDEs such as Android Studio.
 
 
 ## Video Demo
